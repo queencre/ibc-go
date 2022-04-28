@@ -64,8 +64,12 @@ func (k Keeper) SendTransfer(
 		return types.ErrSendDisabled
 	}
 
-	if k.bankKeeper.BlockedAddr(sender) {
+	if k.bankKeeper.BlockedAddr(ctx, sender) {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to send funds", sender)
+	}
+
+	if strings.HasPrefix(token.Denom, "pool") {
+		return sdkerrors.Wrap(types.ErrNotAllowedDenom, token.Denom)
 	}
 
 	sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
@@ -244,7 +248,7 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 		}
 		token := sdk.NewCoin(denom, transferAmount)
 
-		if k.bankKeeper.BlockedAddr(receiver) {
+		if k.bankKeeper.BlockedAddr(ctx, receiver) {
 			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", receiver)
 		}
 

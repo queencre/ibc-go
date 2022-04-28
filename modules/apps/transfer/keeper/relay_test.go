@@ -45,6 +45,20 @@ func (suite *KeeperTestSuite) TestSendTransfer() {
 			}, false, true,
 		},
 		{
+			"not allowed denom transfer failed",
+			func() {
+				suite.coordinator.CreateTransferChannels(path)
+				amount = sdk.NewCoin("pool1", sdk.NewInt(100))
+			}, true, false,
+		},
+		{
+			"not allowed denom transfer failed - 2",
+			func() {
+				suite.coordinator.CreateTransferChannels(path)
+				amount = sdk.NewCoin("pool1", sdk.NewInt(100))
+			}, false, false,
+		},
+		{
 			"source channel not found",
 			func() {
 				// channel references wrong ID
